@@ -1,6 +1,6 @@
+import React, { useState, useEffect } from "react";
 import { Box, Button, Flex, Image, Text } from "@chakra-ui/react";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { useState } from "react";
 import axios from "axios";
 
 const theme = extendTheme({
@@ -24,6 +24,25 @@ const App = () => {
   const [account, setAccount] = useState("");
   const [src, setSrc] = useState("");
 
+  useEffect(() => {
+    // Check if the user is already connected
+    const checkAccount = async () => {
+      if (window.ethereum && window.ethereum.selectedAddress) {
+        const accounts = [window.ethereum.selectedAddress];
+        if (accounts.length > 0) {
+          const shortenedAccount = `${accounts[0].substring(
+            0,
+            4
+          )}....${accounts[0].substring(accounts[0].length - 4)}`;
+          setAccount(shortenedAccount);
+        } else {
+          setAccount("");
+        }
+      }
+    };
+    checkAccount();
+  }, []);
+
   const getAccount = async () => {
     try {
       if (window.ethereum) {
@@ -40,8 +59,28 @@ const App = () => {
           const shortenedAccount = `${accounts[0].substring(
             0,
             4
-          )}....${accounts[0].substring(accounts[0].length - 4)}`; // Modify account format
-          setAccount(shortenedAccount); // Update account information with the shortened account
+          )}....${accounts[0].substring(accounts[0].length - 4)}`;
+          setAccount(shortenedAccount);
+
+          // Check the last 4 characters of the first account
+          const lastFourDigits = accounts[0].slice(-4);
+          switch (lastFourDigits) {
+            case "bec2":
+              setSrc("../image/01.png");
+              break;
+            case "56a9":
+              setSrc("../image/02.png");
+              break;
+            case "2268":
+              setSrc("../image/03.png");
+              break;
+            case "0241":
+              setSrc("../image/04.png");
+              break;
+            default:
+              setSrc("");
+              break;
+          }
         } else {
           setAccount("");
         }
@@ -55,7 +94,7 @@ const App = () => {
 
   const logOut = async () => {
     try {
-      setAccount(""); // Reset account information
+      setAccount("");
     } catch (error) {
       console.error(error);
     }
@@ -63,16 +102,13 @@ const App = () => {
 
   const fetchNFTData = async () => {
     try {
-      // Opensea 테스트넷 API를 호출하여 NFT 정보를 가져오는 로직을 구현합니다.
-      // 필요한 API 엔드포인트에 GET 요청을 보내고, 데이터를 추출합니다.
-      // 예를 들어, axios 등의 HTTP 클라이언트를 사용할 수 있습니다.
       const response = await axios.get(
         "https://testnets-api.opensea.io/api/v1/asset/0x2953399124F0cBB46d2CbACD8A89cF0599974963/77975109537087021555095730259159261573398929991320928148399609542411594760292"
       );
       const data = response.data;
       return data;
     } catch (error) {
-      console.error("NFT 정보를 가져오는 중에 오류가 발생했습니다.", error);
+      console.error("An error occurred while fetching NFT data.", error);
       return null;
     }
   };
@@ -80,8 +116,7 @@ const App = () => {
   const handleGetNFT = async () => {
     const nftInfo = await fetchNFTData();
     if (nftInfo) {
-      setSrc(nftInfo.image); // 이미지 URL을 설정하여 화면에 출력
-      // 기타 NFT 메타데이터 정보를 사용하여 필요한 정보를 가져와서 화면에 출력
+      setSrc(nftInfo.image);
     }
   };
 
@@ -127,7 +162,17 @@ const App = () => {
               bgColor="gray.300"
               border="2px"
               borderRadius="xl"
-            />
+            >
+              {src && (
+                <Image
+                  src={src}
+                  alt="NFT Image"
+                  width="100%"
+                  height="100%"
+                  objectFit="contain"
+                />
+              )}
+            </Box>
           )}
           <br />
           <Button colorScheme="yellow" onClick={handleGetNFT}>
