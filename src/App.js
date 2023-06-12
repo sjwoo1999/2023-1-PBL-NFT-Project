@@ -43,6 +43,7 @@ const App = () => {
     checkAccount();
   }, []);
 
+  // 계정 반환 함수
   const getAccount = async () => {
     try {
       if (window.ethereum) {
