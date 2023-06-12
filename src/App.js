@@ -154,7 +154,13 @@ const App = () => {
           bg="gray.100"
         >
           {src ? (
-            <Image src={src} alt="NFT" boxShadow="lg" borderRadius="xl" />
+            <Box
+              width={512}
+              height={512}
+              bgColor="gray.300"
+              border="2px"
+              borderRadius="xl"
+            />
           ) : (
             <Box
               width={512}
